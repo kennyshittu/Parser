@@ -30,7 +30,7 @@ public class ParserCommand extends Command {
 
   @Inject
   public ParserCommand(LogRowDao logRowDao, BlockedIPAddressDao blockedIPAddressDao) {
-    super("com.ef.Parser", "Parse log files");
+    super("parse", "Parse log files");
     this.logRowDao = logRowDao;
     this.blockedIPAddressDao = blockedIPAddressDao;
   }
@@ -42,8 +42,7 @@ public class ParserCommand extends Command {
         .dest("file")
         .type(File.class)
         .choices(new FileArgumentChecker())
-        .help(
-            "The access log file path (Optional, if not provided data is loaded from sample accesslog.)");
+        .help("The access log file path (Optional, if not provided data is loaded from sample accesslog.)");
 
     subparser.addArgument("-s", "--startDate")
         .dest("startDate")
@@ -63,13 +62,6 @@ public class ParserCommand extends Command {
         .type(Integer.class)
         .required(true)
         .help("The threshold");
-
-    //Optional command
-    subparser.addArgument("-l", "--load")
-        .dest("load")
-        .type(Boolean.class)
-        .setDefault(true)
-        .help("A boolean flag to disable loading of data from accesslog. (Optional)");
 
     //Optional command
     subparser.addArgument("-c", "--clean")
@@ -93,11 +85,6 @@ public class ParserCommand extends Command {
     // Validate Date and File.
     try {
       startDate = INPUT_DATE_FORMAT.parse(startDateString);
-      //If accesslog file is not provided, use default access log file.
-      URL fileUrl = getClass().getClassLoader().getResource("access.log");
-      if (logFile == null && fileUrl != null) {
-        logFile = new File(fileUrl.getFile());
-      }
     } catch (ParseException e) {
       String errorMsg =
           "Error: Invalid startdate format, accepted format is : " + INPUT_DATE_PATTERN;
@@ -112,7 +99,7 @@ public class ParserCommand extends Command {
       blockedIPAddressDao.truncate();
     }
 
-    if (load) { // Load is TRUE by default. if set to false, we won't read data from accesslog.
+    if (logFile != null) { // if accesslog was specified read from accesslog.
       // Load logs from accesslog file
       List<LogRow> logRows = ParserFileReader.readCsvFile(logFile.getAbsolutePath());
       System.out.println(StringUtils.join("Loaded ", logRows.size(), " records from ",
