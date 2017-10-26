@@ -2,12 +2,15 @@ package com.ef.models;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.util.Date;
-import javax.persistence.*;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.joda.time.DateTime;
 
 @Data
 @AllArgsConstructor
@@ -16,18 +19,19 @@ import org.joda.time.DateTime;
 @Table(name = "log_row")
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class LogRow {
-    @Id
-    @NotNull
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
 
-    private String ip;
+  @Id
+  @NotNull
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private long id;
 
-    private String request;
+  private String ip;
 
-    private int status;
+  private String request;
 
-    private String useragent;
+  private int status;
 
-    private DateTime startdate;
+  private String useragent;
+
+  private Date startdate;
 }

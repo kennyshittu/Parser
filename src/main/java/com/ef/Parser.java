@@ -13,28 +13,29 @@ import io.dropwizard.Application;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
 
-public class Parser  extends Application<ParserConfiguration> {
-    public static void main(String[] args) throws Exception {
-        new Parser().run(args);
-    }
+public class Parser extends Application<ParserConfiguration> {
 
-    @Override
-    public void run(ParserConfiguration configuration, Environment environment) throws Exception {
-    }
+  public static void main(String[] args) throws Exception {
+    new Parser().run(args);
+  }
 
-    @Override
-    public void initialize(Bootstrap<ParserConfiguration> bootstrap) {
-        Injector injector = createInjector();
-        bootstrap.addCommand(injector.getInstance(ParserCommand.class));
-    }
+  @Override
+  public void run(ParserConfiguration configuration, Environment environment) throws Exception {
+  }
 
-    private Injector createInjector() {
-        return Guice.createInjector(new AbstractModule() {
-            @Override
-            protected void configure() {
-                bind(LogRowDao.class).to(LogRowDaoImpl.class);
-                bind(BlockedIPAddressDao.class).to(BlockedIPAddressDaoImpl.class);
-            }
-        });
-    }
+  @Override
+  public void initialize(Bootstrap<ParserConfiguration> bootstrap) {
+    Injector injector = createInjector();
+    bootstrap.addCommand(injector.getInstance(ParserCommand.class));
+  }
+
+  private Injector createInjector() {
+    return Guice.createInjector(new AbstractModule() {
+      @Override
+      protected void configure() {
+        bind(LogRowDao.class).to(LogRowDaoImpl.class);
+        bind(BlockedIPAddressDao.class).to(BlockedIPAddressDaoImpl.class);
+      }
+    });
+  }
 }

@@ -1,17 +1,14 @@
 package com.ef.dao;
 
 import com.ef.models.LogRow;
+import java.util.Date;
 import java.util.List;
-import org.joda.time.DateTime;
 
 public interface LogRowDao {
-    LogRow getById(long id);
 
-    List<LogRow> getAll();
+  void bulkSave(List<LogRow> logRows);
 
-    void save(LogRow logRow);
+  void truncate();
 
-    void bulkSave(List<LogRow> logRows);
-
-    List<Object[]> findWithOptions(DateTime from, DateTime to, Long threshold);
+  List<Object[]> findWithOptions(Date from, Date to);
 }

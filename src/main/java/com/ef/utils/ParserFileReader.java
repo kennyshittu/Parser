@@ -4,52 +4,47 @@ import static com.ef.utils.ParserUtil.LOG_DATE_FORMAT;
 
 import com.ef.models.LogRow;
 import java.io.FileReader;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
-import org.joda.time.DateTime;
 
-@Slf4j
 public class ParserFileReader {
 
-    private static final char PIPE = '|';
-	public static List<LogRow> readCsvFile(String filePath) {
+  private static final char PIPE = '|';
 
-		//Create the CSVFormat object with the delimiter
-        CSVFormat csvFileFormat = CSVFormat.DEFAULT.withDelimiter(PIPE);
+  public static List<LogRow> readCsvFile(String filePath) {
 
-        //Create a new list of log rows to be filled by CSV file data
-        List<LogRow> logRows = new ArrayList<LogRow>();
+    //Create the CSVFormat object with the delimiter
+    CSVFormat csvFileFormat = CSVFormat.DEFAULT.withDelimiter(PIPE);
 
-        try (FileReader fileReader = new FileReader(filePath); CSVParser csvFileParser = new CSVParser(fileReader,
-                csvFileFormat)){
+    //Create a new list of log rows to be filled by CSV file data
+    List<LogRow> logRows = new ArrayList<LogRow>();
 
-            //Get a list of CSV file records
-            List<CSVRecord> csvRecords = csvFileParser.getRecords();
+    try (FileReader fileReader = new FileReader(filePath); CSVParser csvFileParser = new CSVParser(
+        fileReader, csvFileFormat)) {
 
-            //Read the CSV file records starting from the first record since there's no header
-            for (int i = 0; i < csvRecords.size(); i++) {
-            	CSVRecord record = csvRecords.get(i);
-                LogRow logRow = new LogRow();
+      //Get a list of CSV file records
+      List<CSVRecord> csvRecords = csvFileParser.getRecords();
 
-                logRow.setStartdate(LOG_DATE_FORMAT.parseDateTime(record.get(0)));
-                logRow.setIp(record.get(1));
-                logRow.setRequest(record.get(2));
-                logRow.setStatus(Integer.parseInt(record.get(3)));
-                logRow.setUseragent(record.get(4));
-                logRows.add(logRow);
-			}
+      //Read the CSV file records starting from the first record since there's no header
+      for (int i = 0; i < csvRecords.size(); i++) {
+        CSVRecord record = csvRecords.get(i);
+        LogRow logRow = new LogRow();
+        logRow.setStartdate(LOG_DATE_FORMAT.parse(record.get(0)));
+        logRow.setIp(record.get(1));
+        logRow.setRequest(record.get(2));
+        logRow.setStatus(Integer.parseInt(record.get(3)));
+        logRow.setUseragent(record.get(4));
+        logRows.add(logRow);
+      }
 
-        } catch (Exception e) {
-        	log.error("Error in ParserFileReader !!!", e);
-        }
-        return logRows;
-	}
+    } catch (Exception e) {
+      System.out.println("Error in ParserFileReader !!! : " + e.getMessage());
+      e.printStackTrace();
+    }
+    return logRows;
+  }
 
 }
