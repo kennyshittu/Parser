@@ -2,6 +2,7 @@ package com.ef.dao;
 
 import com.ef.models.LogRow;
 import java.util.List;
+import org.joda.time.DateTime;
 
 public interface LogRowDao {
     LogRow getById(long id);
@@ -12,5 +13,5 @@ public interface LogRowDao {
 
     void bulkSave(List<LogRow> logRows);
 
-    List<LogRow> findWithOptions(String from, String to, Integer threshold);
+    List<Object[]> findWithOptions(DateTime from, DateTime to, Long threshold);
 }

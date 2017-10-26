@@ -7,6 +7,7 @@ import javax.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.joda.time.DateTime;
 
 @Data
 @AllArgsConstructor
@@ -28,5 +29,5 @@ public class LogRow {
 
     private String useragent;
 
-    private Date startdate;
+    private DateTime startdate;
 }

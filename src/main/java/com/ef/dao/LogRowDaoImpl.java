@@ -1,13 +1,15 @@
 package com.ef.dao;
 
 import com.ef.models.LogRow;
+import java.util.Date;
 import java.util.List;
 import javax.persistence.EntityManager;
+import org.joda.time.DateTime;
 
-@SuppressWarnings("unchecked")
+@SuppressWarnings( "unchecked" )
 public class LogRowDaoImpl implements LogRowDao {
 
-    private EntityManager em ;
+    private EntityManager em;
 
     @Override
     public LogRow getById(long id) {
@@ -36,16 +38,12 @@ public class LogRowDaoImpl implements LogRowDao {
     }
 
     @Override
-    public List<LogRow> findWithOptions(String from, String to, Integer threshold) {
-        return em.createQuery(
-                "SELECT l, COUNT (l.ip) AS total FROM LogRow l " +
-                "WHERE c.startdate " +
-                "BETWEEN :from AND :to " +
-                "GROUP BY l.ip " +
-                "HAVING total >= :threshold")
+    public List<Object[]> findWithOptions(DateTime from, DateTime to, Long threshold) {
+        return em.createQuery("SELECT l.ip AS ip, COUNT(l.startdate) AS total FROM LogRow l " +
+                                                "WHERE l.startdate BETWEEN :from AND :to " +
+                                                "GROUP BY l.ip ORDER BY l.ip ASC")
                 .setParameter("from", from)
                 .setParameter("to", to)
-                .setParameter("threshold", threshold)
                 .getResultList();
 
     }

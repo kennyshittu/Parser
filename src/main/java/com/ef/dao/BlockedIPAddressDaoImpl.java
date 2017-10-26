@@ -5,7 +5,7 @@ import java.util.List;
 import javax.persistence.EntityManager;
 
 public class BlockedIPAddressDaoImpl implements BlockedIPAddressDao {
-    private EntityManager em ;
+    private EntityManager em;
 
     @Override
     public void save(BlockedIPAddress blockedIPAddress) {

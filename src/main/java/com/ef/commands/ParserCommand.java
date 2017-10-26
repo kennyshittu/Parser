@@ -21,6 +21,7 @@ import javax.persistence.EntityManager;
 import net.sourceforge.argparse4j.inf.Namespace;
 import net.sourceforge.argparse4j.inf.Subparser;
 import org.apache.commons.lang3.StringUtils;
+import org.joda.time.DateTime;
 
 public class ParserCommand extends Command {
     private static final Integer HOURLY_THRESHOLD = 200;
@@ -64,7 +65,7 @@ public class ParserCommand extends Command {
 
         subparser.addArgument("-t", "--threshold")
                 .dest("threshold")
-                .type(Integer.class)
+                .type(Long.class)
                 .required(true)
                 .help("The threshold");
     }
@@ -72,15 +73,16 @@ public class ParserCommand extends Command {
     @Override
     public void run(Bootstrap<?> bootstrap, Namespace namespace) throws Exception {
         File logFile = namespace.get("file");
-        String startDateString = namespace.getString("startDate");
+        String startDateString = namespace.get("startDate");
+        DateTime startDate = INPUT_DATE_FORMAT.parseDateTime(startDateString);
         String duration = namespace.getString("duration");
-        Integer threshold = namespace.getInt("threshold");
-        Date startDate;
+        Long threshold = namespace.getLong("threshold");
+//        Date startDate;
 
         // Validate Date and File.
-        try {
+//        try {
             //Parse startdate string
-            startDate = INPUT_DATE_FORMAT.parse(startDateString);
+//            startDate = INPUT_DATE_FORMAT.parse(startDateString);
 
             //If accesslog is not provided, use default access log file.
             URL fileUrl = getClass().getClassLoader().getResource("access.log");
@@ -88,13 +90,13 @@ public class ParserCommand extends Command {
                 logFile = new File(fileUrl.getFile());
             }
 
-        } catch ( ParseException e ) {
-            String errorMsg = "Error: Invalid startdate format, accepted format is : " + INPUT_DATE_PATTERN;
-            throw new IllegalArgumentException(errorMsg, e);
-        }
+//        } catch ( ParseException e ) {
+//            String errorMsg = "Error: Invalid startdate format, accepted format is : " + INPUT_DATE_PATTERN;
+//            throw new IllegalArgumentException(errorMsg, e);
+//        }
 
         System.out.println("File : " + logFile.getName());
-        System.out.println("startDateString : " + startDateString);
+//        System.out.println("startDateString : " + startDate);
         System.out.println("startDate : " + startDate);
         System.out.println("duration : " + duration);
         System.out.println("threshold : " + threshold);
@@ -109,53 +111,43 @@ public class ParserCommand extends Command {
 //                em.getTransaction().commit();
 
         // write log rows to db
-//        logRows.forEach(logRow -> {
-//            logRowDao.save(logRow);
-//        });
 //        logRowDao.bulkSave(logRows);
 
-        // find with options
-        int hours = duration.equals("daily") ? 24 : 1;
+        em.getTransaction().begin();
+        logRows.forEach(logRow -> {
+            em.persist(logRow);
+        });
+        em.getTransaction().commit();
 
-        String from = LOG_DATE_FORMAT.format(startDate);
-        Date endDate = ParserUtil.addHours(startDate, hours);
-        String to = LOG_DATE_FORMAT.format(endDate);
-
-        System.out.println("From : " + from);
-        System.out.println("To : " + to);
-
-        List<LogRow> selectedLogRows=  em.createQuery(
-                "SELECT l FROM LogRow l " +
-                "WHERE l.startdate " +
-                "BETWEEN :from AND :to " +
-                "")
-                .setParameter("from", startDate)
-                .setParameter("to", endDate)
-//                .setParameter("threshold", threshold)
-                .getResultList();
-
-
-
-
-
-
-//        List<LogRow> selectedLogRows = logRowDao.findWithOptions(from, to, threshold);
-selectedLogRows.forEach(selectedLogRow -> {
-    System.out.println("selected : " + selectedLogRow);
-});
-        System.out.println("selected : " + selectedLogRows);
-
-//        //write found ip addresses to another table with comments
+//        // find with options
+//        int hours = duration.equals("daily") ? 24 : 1;
+//
+////        String from = LOG_DATE_FORMAT.format(startDate);
+//        DateTime endDate = startDate.plusHours(hours);
+////        String to = LOG_DATE_FORMAT.format(endDate);
+//
+//        System.out.println("From : " + startDate);
+//        System.out.println("To : " + endDate);
+//
+//        List<Object[]> results = logRowDao.findWithOptions(startDate, endDate, threshold);
 //        List<BlockedIPAddress> blockedIPAddresses = new ArrayList<>();
-//        selectedLogRows.forEach(selectedLogRow -> {
+//
+//        // print query result
+//        for (Object[] result : results) {
+//            //Print IP addresses to screen
+//            String ip = (String) result[0];
+//            int count = ((Number) result[1]).intValue();
+//            System.out.println("ip : " + ip + " count : " + count );
+//
+//            //write found ip addresses to another table with comments
 //            BlockedIPAddress blockedIPAddress = new BlockedIPAddress();
-//            blockedIPAddress.setIp(selectedLogRow.getIp());
-//            blockedIPAddress.setComment(StringUtils.join("Blocked because over ", threshold,
-//                            " requests were received from this IP in the last ", hours, "hours."));
+//            blockedIPAddress.setIp(ip);
+//            blockedIPAddress.setComment(StringUtils.join("Blocked because threshold ", threshold," has been exceeded.",
+//                    count, " requests were received from this IP in the last ", hours, " hours."));
 //            blockedIPAddresses.add(blockedIPAddress);
-//        });
-
-        //bulk save
+//        }
+//
+//        // bulk save
 //        blockedIPAddressDao.bulkSave(blockedIPAddresses);
     }
 }
