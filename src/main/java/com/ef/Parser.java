@@ -1,20 +1,40 @@
 package com.ef;
 
-public class Parser {
+import com.ef.commands.ParserCommand;
+import com.ef.configs.ParserConfiguration;
+import com.ef.dao.BlockedIPAddressDao;
+import com.ef.dao.BlockedIPAddressDaoImpl;
+import com.ef.dao.LogRowDao;
+import com.ef.dao.LogRowDaoImpl;
+import com.google.inject.AbstractModule;
+import com.google.inject.Guice;
+import com.google.inject.Injector;
+import io.dropwizard.Application;
+import io.dropwizard.setup.Bootstrap;
+import io.dropwizard.setup.Environment;
 
-
-    private static final String SEPARATOR = "=";
-
+public class Parser  extends Application<ParserConfiguration> {
     public static void main(String[] args) throws Exception {
+        new Parser().run(args);
+    }
 
-        String filePath = args[0].split(SEPARATOR)[1];
-        String startDate = args[1].split(SEPARATOR)[1];
-        String duration = args[2].split(SEPARATOR)[1];
-        String threshold = args[3].split(SEPARATOR)[1];
+    @Override
+    public void run(ParserConfiguration configuration, Environment environment) throws Exception {
+    }
 
-        System.out.println("filePath : " + filePath);
-        System.out.println("startDate : " + startDate);
-        System.out.println("duration : " + duration);
-        System.out.println("threshold : " + threshold);
+    @Override
+    public void initialize(Bootstrap<ParserConfiguration> bootstrap) {
+        Injector injector = createInjector();
+        bootstrap.addCommand(injector.getInstance(ParserCommand.class));
+    }
+
+    private Injector createInjector() {
+        return Guice.createInjector(new AbstractModule() {
+            @Override
+            protected void configure() {
+                bind(LogRowDao.class).to(LogRowDaoImpl.class);
+                bind(BlockedIPAddressDao.class).to(BlockedIPAddressDaoImpl.class);
+            }
+        });
     }
 }
